@@ -64,8 +64,8 @@ async def task():
                     # todo: Exception
                     return
 
-            else:
-                print('[App] No new post')
+        else:
+            print('[App] No new post')
 
     next_interval = random.randint(300, 600)
     print(f'[App] Next refresh: {next_interval} s')
