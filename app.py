@@ -56,7 +56,7 @@ async def task():
                     embed = discord.Embed(
                         title = post['subject'],
                         description = f"{image_attached} {post['username']}",
-                        url = f"${post_url}&no={post['id']}",
+                        url = f"{post_url}&no={post['id']}",
                         color = discord.Color.blue()
                     )
                     await channel.send(embed = embed)
