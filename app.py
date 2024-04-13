@@ -42,8 +42,16 @@ async def task():
 
     else:
         if last_post['id'] > storage[-1]['id']:
+            p = None
+
+            try:
+                p = new_posts.index(storage[-1]) + 1
+            except:
+                print(f'[App] Post deleted: {storage.pop()}')
+                save_posts(storage)
+                return
+
             channel = await client.fetch_channel(CHANNEL_ID)
-            p = new_posts.index(storage[-1]) + 1
             # it will be problem when it bigger
             newer = new_posts[p:]
             storage.extend(newer)
