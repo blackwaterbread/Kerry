@@ -23,6 +23,16 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
+post_type = {
+    'icon_notice': '[공지]',
+    'icon_txt': '[글]',
+    'icon_pic': '[이미지]',
+    'icon_movie': '[동영상]',
+    'icon_recomtxt': '[념글]',
+    'icon_recomimg': '[념글_이미지]',
+    'icon_recomovie': '[념글_동영상]'
+}
+
 print('[App] Loading recently posts ...')
 storage: list = load_posts()
 
@@ -42,16 +52,8 @@ async def task():
 
     else:
         if last_post['id'] > storage[-1]['id']:
-            p = None
-
-            try:
-                p = new_posts.index(storage[-1]) + 1
-            except:
-                print(f'[App] Post deleted: {storage.pop()}')
-                save_posts(storage)
-                return
-
             channel = await client.fetch_channel(CHANNEL_ID)
+            p = new_posts.index(storage[-1]) + 1
             # it will be problem when it bigger
             newer = new_posts[p:]
             storage.extend(newer)
@@ -60,14 +62,20 @@ async def task():
 
             for post in newer:
                 if (type(channel) == discord.channel.TextChannel):
-                    image_attached = '[글]' if post['type'] == 'icon_txt' else '[이미지]'
+                    image_attached = '[알수없음]'
+                    try:
+                        image_attached = post_type[post['type']]
+                    except:
+                        print('[App] Something unknown post type')
+
                     embed = discord.Embed(
                         title = post['subject'],
                         description = f"{image_attached} {post['username']}",
                         url = f"{post_url}&no={post['id']}",
                         color = discord.Color.blue()
                     )
-                    await channel.send(embed = embed)
+                    msg = await channel.send(embed = embed)
+                    print(f'[Discord] New post embed: {msg.id}')
                 else:
                     # todo: Exception
                     return
