@@ -43,24 +43,22 @@ async def on_ready():
 
 @tasks.loop(seconds=5)
 async def task():
-    new_posts = get_posts()
-    last_post = new_posts[-1]
+    posts = get_posts()
+    # last_post = req_posts[-1]
 
     if not storage:
-        storage.extend(new_posts)
+        storage.extend(posts)
         save_posts(storage)
 
     else:
-        if last_post['id'] > storage[-1]['id']:
+        new_posts = list(filter(lambda x: x['id'] > storage[-1]['id'], posts))
+        if new_posts:
             channel = await client.fetch_channel(CHANNEL_ID)
-            p = new_posts.index(storage[-1]) + 1
-            # it will be problem when it bigger
-            newer = new_posts[p:]
-            storage.extend(newer)
+            storage.extend(new_posts)
             save_posts(storage)
-            print(f'[App] New post detected: {len(newer)}')
+            print(f'[App] New post detected: {len(new_posts)}')
 
-            for post in newer:
+            for post in new_posts:
                 if (type(channel) == discord.channel.TextChannel):
                     image_attached = '[알수없음]'
                     try:
