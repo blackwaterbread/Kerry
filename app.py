@@ -2,6 +2,8 @@ import os
 import discord
 import random
 from discord.ext import tasks
+from git import Repo
+from log import printLog
 from dotenv import load_dotenv
 from crawler import get_posts
 from storage import load_posts, save_posts
@@ -33,12 +35,16 @@ post_type = {
     'icon_recomovie': '[념글_동영상]'
 }
 
-print('[App] Loading recently posts ...')
+printLog('[App] Loading recently posts ...')
 storage: list = load_posts()
 
 @client.event
 async def on_ready():
-    print(f'[Discord] Logged in as {client.user}')
+    printLog(f'[App] Logged in as {client.user}')
+    repo = Repo('./')
+    commit = repo.head.commit
+    presence = discord.Game(f'kerry/{commit.hexsha[0:7]}')
+    await client.change_presence(status = discord.Status.online, activity = presence)
     task.start()
 
 @tasks.loop(seconds=5)
@@ -56,7 +62,7 @@ async def task():
             channel = await client.fetch_channel(CHANNEL_ID)
             storage.extend(new_posts)
             save_posts(storage)
-            print(f'[App] New post detected: {len(new_posts)}')
+            printLog(f'[App] New post detected: {len(new_posts)}')
 
             for post in new_posts:
                 if (type(channel) == discord.channel.TextChannel):
@@ -64,7 +70,7 @@ async def task():
                     try:
                         image_attached = post_type[post['type']]
                     except:
-                        print('[App] Something unknown post type')
+                        printLog('[App] Something unknown post type')
 
                     embed = discord.Embed(
                         title = post['subject'],
@@ -73,16 +79,16 @@ async def task():
                         color = discord.Color.blue()
                     )
                     msg = await channel.send(embed = embed)
-                    print(f'[Discord] New post embed: {msg.id}')
+                    printLog(f'[App] New post embed: {msg.id}')
                 else:
                     # todo: Exception
                     return
 
         else:
-            print('[App] No new post')
+            printLog('[App] No new post')
 
     next_interval = random.randint(300, 600)
-    print(f'[App] Next refresh: {next_interval} s')
+    printLog(f'[App] Next refresh: {next_interval} s')
     task.change_interval(seconds=next_interval)
 
 client.run(TOKEN)
