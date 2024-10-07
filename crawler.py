@@ -61,7 +61,7 @@ def get_arma_news():
             'news_date': news_date
         }
         news_arma3.append(news)
-        
+
     # arma reforger
     for news in soup_armareforger.select_one('main > section.pb-16 > div.container > div').select('a.group'):
         news_link = news.attrs['href']
@@ -81,5 +81,5 @@ def get_arma_news():
             'news_date': news_date,
         }
         news_armareforger.append(news)
-        
-    return { 'arma3': news_arma3, 'arma_reforger': news_armareforger }
+
+    return { 'arma3': sorted(news_arma3, key = lambda x: x['id']), 'arma_reforger': sorted(news_armareforger, key = lambda x: x['id']) }

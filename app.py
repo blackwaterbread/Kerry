@@ -126,7 +126,7 @@ async def ref_news_task():
 
     next_interval = 3600
     printLog(f'[App] Next news refresh: {next_interval} s')
-    ref_post_task.change_interval(seconds=next_interval)
+    ref_news_task.change_interval(seconds=next_interval)
 
 @tasks.loop(seconds=5)
 async def ref_post_task():
